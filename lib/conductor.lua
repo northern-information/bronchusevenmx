@@ -15,7 +15,7 @@ end
 
 function conductor:act()
   -- this method acts each bronch_lattice
-  local a = conductor.arrow_of_time
+  local a = self.arrow_of_time
 
   -- hardcode event
   if a == 23 then 
@@ -25,7 +25,7 @@ function conductor:act()
   -- sequence event
   if a % 100 == 0 then
 
-    conductor:trigger_sample_by_name('uneven-structure-' .. conductor.test() .. '.wav')
+    self:trigger_sample_by_name('uneven-structure-' .. self.test() .. '.wav')
 
   end
 
@@ -34,7 +34,7 @@ function conductor:act()
     rerun()
   end
 
-  conductor.arrow_of_time = conductor.arrow_of_time + 1
+  self.arrow_of_time = self.arrow_of_time + 1
 
   fn.dirty_screen(true)
 
@@ -43,7 +43,7 @@ end
 
 
 function conductor:trigger_sample_by_name(name)
-  conductor.sampler[conductor.hash_map[name]]:trigger()
+  self.sampler[self.hash_map[name]]:trigger()
 end
 
 return conductor
