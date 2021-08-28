@@ -10,17 +10,16 @@ function conductor.init()
     conductor.hash_map[name] = key
   end
   -- "score" data
-  conductor.test = Sequins{2, 1}
+  conductor.test = Sequins{1, 2}
 end
 
 function conductor:act()
   -- this method acts each bronch_lattice
-  conductor.arrow_of_time = conductor.arrow_of_time + 1
   local a = conductor.arrow_of_time
 
   -- hardcode event
-  if a == 1 then 
-    conductor:trigger_sample_by_name('uneven-structure-1.wav')
+  if a == 23 then 
+    print("hardcode event")
   end
 
   -- sequence event
@@ -34,6 +33,8 @@ function conductor:act()
   if a == 1000 then
     rerun()
   end
+
+  conductor.arrow_of_time = conductor.arrow_of_time + 1
 
   fn.dirty_screen(true)
 
