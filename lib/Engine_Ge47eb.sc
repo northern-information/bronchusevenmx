@@ -122,8 +122,7 @@ Engine_Ge47eb : CroneEngine {
 				Out.ar(0,snd)
 		}).add;	
 
-
-		this.addCommand("play","sffffffff", { arg msg;
+		this.addCommand("play","sffffffffff", { arg msg;
 			var filename=msg[1];
 			var synName="playerGe47ebMono";
       //("decay is " + msg[9]).postln;
@@ -148,6 +147,7 @@ Engine_Ge47eb : CroneEngine {
 						\rate,msg[7],
 						\t_trig,msg[8],
 						\decay,msg[9],
+						\interpolation,msg[10],
 					],target:context.server).onFree({
 						// ("freed "++filename).postln;
 					}));
@@ -169,6 +169,7 @@ Engine_Ge47eb : CroneEngine {
 						\rate,msg[7],
 						\t_trig,msg[8],
 						\decay,msg[9],
+						\interpolation,msg[10],
 					);
 				},{
 					synGe47eb.put(filename,Synth(synName,[
@@ -180,6 +181,8 @@ Engine_Ge47eb : CroneEngine {
 						\loop,msg[6],
 						\rate,msg[7],
 						\t_trig,msg[8],
+						\decay,msg[9],
+						\interpolation,msg[10],
 					],target:context.server).onFree({
 						// ("freed "++filename).postln;
 					}));
