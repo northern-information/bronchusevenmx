@@ -3,18 +3,21 @@ now_playing = nil
 
 function conductor.init()
   conductor.arrow_of_time = 0
-  conductor.id = 999
-  conductor.sampler = {}
-  conductor.hash_map = {}
-  for key, name in pairs(filesystem:get_samples()) do
-    print("adding sampler"..name)
-    table.insert(conductor.sampler, Sample:new(name))
-    conductor.hash_map[name] = key
-  end
-
   -- "SCORE" DATA --
+
+  -- guitar
+  conductor.guitar_sequence = Sequins{1, 2}
+  conductor.guitar_samples = {}
+  conductor.guitar_samples[1] = "uneven-structure-1.wav"
+  conductor.guitar_samples[2] = "uneven-structure-2.wav"
+
+  -- drums
+  conductor.drum_sequence = Sequins{1}
+  conductor.drum_samples = {}
+  conductor.drum_samples[1] = "deep-state-music.wav"
+
+  -- stream zone
   local rates = {1/8, 3/16, 1/4, 3/8, 1/2, 3/4, 1, 3/2, 2, 3, 4}
-  conductor.test = Sequins{1, 2}
   conductor.interp = Sequins{1, 2}
   -- just-intonation (perfect) fifth sequence
   conductor.rate = loop_stream(table_stream(rates), #rates, 5)
@@ -34,16 +37,21 @@ function conductor:act()
 
   -- hardcode event
   if a == 23 then 
-    print("hardcode event")
+    -- print("hardcode event")
   end
 
-  -- sequence event
+
+  if a == 0 then
+    sampler:get_by_name("deep-state-music.wav"):loop()
+  end
+
+  -- guitar events
   if a % 100 == 0 then
-    now_playing = self.test()
-    -- local name = 'uneven-structure-' .. now_playing .. '.wav'
+    now_playing = self.guitar_sequence()
+    local name = 'uneven-structure-' .. now_playing .. '.wav'
     -- print("now_playing "..name)
-    self.sampler[now_playing]:scrub(
-      self.rate.last(), 
+    sampler:get_by_name(name):scrub(
+      self.rate.next(), 
       self.offset_stream.next(),
       self.amp_stream.next(),
       999,
@@ -57,10 +65,11 @@ function conductor:act()
   -- it'd be cool to "auto-bind" once stream to another for e.g. looping
   if a % 100 > 50 and self.burst_stream.next() then
     self.burst_stream.set_length(conductor.clockdiv_div_stream.next())
-    -- local name = 'uneven-structure-' .. now_playing .. '.wav'
+    now_playing = self.guitar_sequence()
+    local name = 'uneven-structure-' .. now_playing .. '.wav'
     -- function Sample:scrub(rate, start, amp)
     --self.sampler[now_playing]:scrub(1, self.offset_stream.next(), 1)
-    self.sampler[now_playing]:scrub(
+    sampler:get_by_name(name):scrub(
       self.rate.last(), 
       self.offset_stream.next(), 
       self.amp_stream.next(),
@@ -71,7 +80,7 @@ function conductor:act()
 
   -- rerun the script
   if a == 800 then
-    rerun()
+    -- rerun()
   end
 
   self.arrow_of_time = self.arrow_of_time + 1
