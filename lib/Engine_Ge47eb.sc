@@ -160,7 +160,7 @@ Engine_Ge47eb : CroneEngine {
 				if (bufGe47eb.at(filename).numChannels>1,{
 					synName="playerGe47ebStereo";
 				});
-        ("playing " + filename + " with sampleLen " + msg[5]).postln;
+        //("playing " + filename + " with sampleLen " + msg[5]).postln;
 				if (synGe47eb.at(filename).isRunning==true,{
 					synGe47eb.at(filename).set(
 						\bufnum,bufGe47eb.at(filename),
