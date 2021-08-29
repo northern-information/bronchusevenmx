@@ -10,6 +10,7 @@ conductor = include("lib/conductor")
 graphics = include("lib/graphics")
 
 bpm = 120
+redraw_clock_id = nil
 
 function init()
   screen_dirty = true
@@ -48,4 +49,9 @@ end
 
 function redraw()
   graphics:render()
+end
+
+function cleanup()
+  clock.cancel(redraw_clock_id)
+  bronch_lattice:destroy()
 end
