@@ -43,8 +43,13 @@ function make_stream(setup, debug)
 
   reset()
 
-  stream["last"] = function () return stream.value end
   stream["advance"] = function () get_next(stream.set_value) end
+  stream["last"] = function () 
+    if stream.value == nil then
+      stream.advance()
+    end
+    return stream.value 
+  end
   stream["next"] = 
     function () 
       stream.advance()
@@ -95,7 +100,9 @@ function once_stream()
   end)
 end
 
-function loop_stream(stream, max_items)
+function loop_stream(stream, max_items, inc)
+  inc = inc or 1
+
   local items = 0
   local value = nil
   local looped_stream = { }
@@ -106,10 +113,13 @@ function loop_stream(stream, max_items)
     end
   looped_stream["next"] = 
     function ()
-      value = stream.next()
-      items = items + 1
-      if items >= max_items then
-        looped_stream.reset()
+      for i = 1, inc do
+        value = stream.next()
+        items = items + 1
+        if items >= max_items then
+          --print("that's all folks! restarting looped stream....")
+          looped_stream.reset()
+        end
       end
       return value
     end
@@ -119,8 +129,13 @@ function loop_stream(stream, max_items)
     end
   looped_stream["set_length"] = 
     function (new_length)
-      print("new length: "..new_length)
+      --print("new length: "..new_length)
       max_items = new_length
+    end
+  looped_stream["set_inc"] = 
+    function (new_inc)
+      --print("new length: "..new_length)
+      inc = new_inc
     end
   return looped_stream
 end
