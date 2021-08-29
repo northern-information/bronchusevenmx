@@ -84,7 +84,7 @@ function conductor:act()
     sampler:get_by_name(name):scrub(
       self.rate.next(), 
       self.offset_stream.next(),
-      self.amp_stream.next() * 0.1,
+      self.amp_stream.next() * 0.3,
       999,
       2, 
       0.5,
@@ -105,7 +105,7 @@ function conductor:act()
     sampler:get_by_name(name):scrub(
       self.rate.last(), 
       self.offset_stream.next(), 
-      self.amp_stream.next() * 0.1,
+      self.amp_stream.next() * 0.4,
       self.decay_stream.next(),
       self.interp(),
       self.len_stream.next(),
