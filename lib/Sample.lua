@@ -19,7 +19,8 @@ function Sample:trigger()
   local trig = 1
   local decay = 999
   local interpolation = 2
-  engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig, decay, interpolation)
+  local endLag = 0
+  engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig, decay, interpolation, endLag)
 end
 
 function Sample:loop()
@@ -33,26 +34,27 @@ function Sample:loop()
   local trig = 1
   local decay = 999
   local interpolation = 2
-  engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig, decay, interpolation)
+  local endLag = 0
+  engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig, decay, interpolation, endLag)
 end
 
 
-function Sample:scrub(rate, sample_start, amp, decay, interpolation, sample_end)
+function Sample:scrub(rate, sample_start, amp, decay, interpolation, sample_end, endLag, hpf)
   rate = rate or 1
   sample_start = sample_start or 0
-  if sample_start == nil then
-    sample_start = 0
-  end
   amp = amp or self:get_volume() * .01
   decay = decay or 999
   interpolation = interpolation or 2
   sample_end = sample_end or 1
+  endLag = endLag or 0
+  hpf = hpf or 1
+  print("endLag:"..endLag)
 
   local path = self:get_path()
   local amp_lag = 0
   local loop = 0
   local trig = 1
-  engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig, decay, interpolation)
+  engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig, decay, interpolation, endLag, hpf)
 end
 
 function Sample:get_name()
