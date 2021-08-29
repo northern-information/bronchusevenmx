@@ -20,6 +20,19 @@ function Sample:trigger()
   engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig)
 end
 
+function Sample:scrub(rate, start, amp)
+  rate = rate or 1
+  start = start or 0
+  amp = amp or self:get_volume() * .01
+
+  local path = self:get_path()
+  local amp_lag = 0
+  local sample_end = 1
+  local loop = 0
+  local trig = 1
+  engine.play(path, amp, amp_lag, start, sample_end, loop, rate, trig)
+end
+
 function Sample:get_name()
   return self.name
 end
