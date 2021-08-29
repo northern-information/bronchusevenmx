@@ -17,6 +17,8 @@ function Sample:trigger()
   local loop = 0
   local rate = 1
   local trig = 1
+  local decay = 999
+  local interpolation = 2
   engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig, decay, interpolation)
 end
 
@@ -38,6 +40,9 @@ end
 function Sample:scrub(rate, sample_start, amp, decay, interpolation, sample_end)
   rate = rate or 1
   sample_start = sample_start or 0
+  if sample_start == nil then
+    sample_start = 0
+  end
   amp = amp or self:get_volume() * .01
   decay = decay or 999
   interpolation = interpolation or 2
