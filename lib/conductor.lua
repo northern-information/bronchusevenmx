@@ -15,6 +15,14 @@ function conductor.init()
   conductor.drum_sequence = Sequins{1}
   conductor.drum_samples = {}
   conductor.drum_samples[1] = "deep-state-music.wav"
+  conductor.sixteenth = loop_stream(once_stream(), 6)
+  conductor.drum_step = loop_stream(series_stream(0, 1), 16)
+  conductor.drum_bar_offset = loop_stream(series_stream(0, 1/5), 5, 3)
+  conductor.drum_8_offset = loop_stream(series_stream(0, 1/40), 8, 5)
+  conductor.sample_len = loop_stream(series_stream(1/80, 1/80), 5, 2)
+  conductor.hpf_steps = loop_stream(series_stream(1000, 500), 5)
+  conductor.sample_len = loop_stream(series_stream(1/80, 1/80), 5, 2)
+  conductor.kick2 = loop_stream(table_stream{6, 9, 10, 13, 14}, 5, 3)
 
   -- stream zone
   local rates = {1/8, 3/16, 1/4, 3/8, 1/2, 3/4, 1, 3/2, 2, 3, 4}
@@ -28,15 +36,12 @@ function conductor.init()
     conductor.clockdiv_div_stream.next())
   conductor.changerate_stream = loop_stream(once_stream(), 70)
   conductor.decay_stream = loop_stream(series_stream(0.05, 0.05), 11)
-  conductor.end_stream = loop_stream(series_stream(0.0001, 0.0001), 17)
+  conductor.len_stream = loop_stream(series_stream(0.001, 0.001), 17)
 
   conductor.changerate_stream = loop_stream(once_stream(), 70)
 
+  -- delay
   conductor.bar = loop_stream(once_stream(), 96)
-  --conductor.sixteenth = loop_stream(once_stream(), 6)
-  conductor.drum_bar_offset = loop_stream(series_stream(0, 1/5), 5, 3)
-  conductor.drum_8_offset = loop_stream(series_stream(0, 1/40), 8, 5)
-  conductor.drum_steps = loop_stream(series_stream(1/80, 1/80), 5, 2)
 end
 
 function conductor:act()
@@ -49,14 +54,34 @@ function conductor:act()
   end
 
   if self.bar.next() then
-    local rate = 1
-    --local offset = 2/5
-    local offset = self.drum_bar_offset.next() + self.drum_8_offset.next()
-    local amp = 1
+    engine.delay_time(math.random())
+    engine.delay_mod_decay(math.random() * 20)
+    engine.delay_mod_depth(math.random() / 100)
+    engine.delay_mod_speed(math.random())
+  end
+
+  if self.sixteenth.next() then
+    local amp = 0.5
     local decay = 6
     local interp = 1
-    local sample_end = offset + self.drum_steps.next()
-    sampler:get_by_name("deep-state-music.wav"):scrub(rate, offset, amp, decay, interp, sample_end)
+    local rate = 1
+
+    self.drum_step.next()
+    self.kick2.next()
+
+    if self.drum_step.last() == 0 or self.drum_step.last() == self.kick2.next() then
+      local offset = self.drum_bar_offset.next()
+      local hpf = 20
+      local sample_len = self.sample_len.next()
+      --print("hpf:"..self.hpf_steps.next())
+      sampler:get_by_name("deep-state-music.wav"):scrub(
+        rate, offset, amp, decay, interp, sample_len, 0, hpf)
+    elseif self.drum_step.last() == 4 then
+      local offset = self.drum_bar_offset.next() + self.drum_8_offset.next()
+      local hpf = self.hpf_steps.last()
+      sampler:get_by_name("deep-state-music.wav"):scrub(
+        rate, offset, amp, decay, interp, sample_len, 2, hpf, 0)
+    end
   end
 
   -- guitar events
@@ -64,12 +89,16 @@ function conductor:act()
     now_playing = self.guitar_sequence()
     local name = 'uneven-structure-' .. now_playing .. '.wav'
     -- print("now_playing "..name)
+    --sampler:get_by_name("deep-state-music.wav"):scrub(rate, offset, amp, decay, interp, sample_len, end_lag, hpf)
     sampler:get_by_name(name):scrub(
       self.rate.next(), 
       self.offset_stream.next(),
-      self.amp_stream.next(),
+      self.amp_stream.next() * 0.4,
       999,
-      self.interp())
+      2, 
+      0.5,
+      20,
+      0)
   end
 
   if self.changerate_stream.next() then
@@ -86,10 +115,14 @@ function conductor:act()
     sampler:get_by_name(name):scrub(
       self.rate.last(), 
       self.offset_stream.next(), 
-      self.amp_stream.next() * 0.3,
+      self.amp_stream.next() * 0.5,
       self.decay_stream.next(),
       self.interp(),
-      self.offset_stream.last() + self.end_stream.next())
+      self.len_stream.next(),
+      0.5, 
+      20,
+      1)
+    --sampler:get_by_name("deep-state-music.wav"):scrub(rate, offset, amp, decay, interp, sample_len, end_lag, hpf)
   end
 
   -- rerun the script
