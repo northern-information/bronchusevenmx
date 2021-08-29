@@ -31,7 +31,7 @@ end
 
 function make_stream(setup)
   local get_next
-  local value
+  local value = nil
 
   print('making stream')
 
@@ -47,20 +47,23 @@ function make_stream(setup)
 
   reset()
 
-  return {
-    ["next"] = 
-      function () 
-        print('calling next')
-        get_next(cb)
-        return value
-      end,
-    ["reset"] = reset
-  }
+  local stream = {}
+
+  stream["last"] = function () return value end
+  stream["advance"] = function () get_next(set_value) end
+  stream["next"] = 
+    function () 
+      stream.advance()
+      return stream.last()
+    end
+  stream["reset"] = reset
+
+  return stream
 end
 
 function geom_stream(start, grow)
   return make_stream(function ()
-    value = start
+    local value = start
     return function (cb)
       cb(value)
       value = value * grow
@@ -70,10 +73,21 @@ end
 
 function series_stream(start, step)
   return make_stream(function ()
-    value = start
+    local value = start
     return function (cb)
       cb(value)
       value = value + step
+    end
+  end)
+end
+
+function table_stream(t)
+  return make_stream(function ()
+    local index = 1
+    return function (cb)
+      print("table_stream -> "..t[index])
+      cb(t[index])
+      index = index % #t + 1
     end
   end)
 end
