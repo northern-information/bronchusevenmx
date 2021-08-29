@@ -2,29 +2,34 @@
 
 engine.name = "Ge47eb"
 lattice = require("lattice")
+tab = require("tabutil")
 include("lib/Sample")
 Sequins = include("lib/Sequins")
 fn = include("lib/functions")
 filesystem = include("lib/filesystem")
 conductor = include("lib/conductor")
+sampler = include("lib/sampler")
 graphics = include("lib/graphics")
+
+bpm = 120
+redraw_clock_id = nil
+screen_dirty = true
 
 function init()
   filesystem.init()
   conductor.init()
+  sampler.init()
   graphics.init()
-  bpm = 120
-  redraw_clock_id = nil
-  screen_dirty = true
   clock.internal.set_tempo(bpm)
   clock.set_source("internal")
-  redraw_clock_id = clock.run(redraw_clock)
   bronch_lattice = lattice:new()
   p = bronch_lattice:new_pattern{
     action = function(t) conductor:act() end,
     division = 1/96,
+    enabled = true
   }
   bronch_lattice:start()
+  redraw_clock_id = clock.run(redraw_clock)
 end
 
 function enc(e, d)

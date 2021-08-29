@@ -17,8 +17,23 @@ function Sample:trigger()
   local loop = 0
   local rate = 1
   local trig = 1
-  engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig)
+  local decay = 999
+  engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig, decay)
 end
+
+function Sample:loop()
+  local path = self:get_path()
+  local amp = self:get_volume() * .01
+  local amp_lag = 0
+  local sample_start = 0
+  local sample_end = 1
+  local loop = 1
+  local rate = 1
+  local trig = 1
+  local decay = 999
+  engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig, decay)
+end
+
 
 function Sample:scrub(rate, start, amp, decay)
   rate = rate or 1
