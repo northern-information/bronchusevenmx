@@ -13,10 +13,11 @@ function conductor.init()
   end
 
   -- "SCORE" DATA --
-  local rates = {1/4, 3/8, 1/2, 3/4, 1, 3/2, 2}
+  local rates = {1/8, 3/16, 1/4, 3/8, 1/2, 3/4, 1, 3/2, 2, 3, 4}
   conductor.test = Sequins{1, 2}
+  conductor.interp = Sequins{1, 2}
   -- just-intonation (perfect) fifth sequence
-  conductor.rate = loop_stream(table_stream(rates), #rates, 3)
+  conductor.rate = loop_stream(table_stream(rates), #rates, 5)
   conductor.offset_stream = series_stream(0, 0.001)
   conductor.amp_stream = loop_stream(series_stream(0.3, 0.05), 13)
   conductor.clockdiv_div_stream = loop_stream(series_stream(1, 1), 7)
@@ -24,6 +25,7 @@ function conductor.init()
     conductor.clockdiv_div_stream.next())
   conductor.changerate_stream = loop_stream(once_stream(), 70)
   conductor.decay_stream = loop_stream(series_stream(0.05, 0.05), 11)
+  conductor.end_stream = loop_stream(series_stream(0.0001, 0.0001), 17)
 end
 
 function conductor:act()
@@ -43,7 +45,9 @@ function conductor:act()
     self.sampler[now_playing]:scrub(
       self.rate.last(), 
       self.offset_stream.next(),
-      self.amp_stream.next())
+      self.amp_stream.next(),
+      999,
+      self.interp())
   end
 
   if self.changerate_stream.next() then
@@ -60,7 +64,9 @@ function conductor:act()
       self.rate.last(), 
       self.offset_stream.next(), 
       self.amp_stream.next(),
-      self.decay_stream.next())
+      self.decay_stream.next(),
+      self.interp(),
+      self.offset_stream.last() + self.end_stream.next())
   end
 
   -- rerun the script
