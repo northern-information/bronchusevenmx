@@ -122,7 +122,7 @@ Engine_Ge47eb : CroneEngine {
 				Out.ar(0,snd)
 		}).add;	
 
-		this.addCommand("play","sffffffffff", { arg msg;
+		this.addCommand("play","sffffffffi", { arg msg;
 			var filename=msg[1];
 			var synName="playerGe47ebMono";
       //("decay is " + msg[9]).postln;
