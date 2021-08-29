@@ -17,12 +17,27 @@ function Sample:trigger()
   local loop = 0
   local rate = 1
   local trig = 1
-  engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig)
+  engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig, decay, interpolation)
 end
 
-function Sample:scrub(rate, start, amp, decay, interpolation, sample_end)
+function Sample:loop()
+  local path = self:get_path()
+  local amp = self:get_volume() * .01
+  local amp_lag = 0
+  local sample_start = 0
+  local sample_end = 1
+  local loop = 1
+  local rate = 1
+  local trig = 1
+  local decay = 999
+  local interpolation = 2
+  engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig, decay, interpolation)
+end
+
+
+function Sample:scrub(rate, sample_start, amp, decay, interpolation, sample_end)
   rate = rate or 1
-  start = start or 0
+  sample_start = sample_start or 0
   amp = amp or self:get_volume() * .01
   decay = decay or 999
   interpolation = interpolation or 2
@@ -32,7 +47,7 @@ function Sample:scrub(rate, start, amp, decay, interpolation, sample_end)
   local amp_lag = 0
   local loop = 0
   local trig = 1
-  engine.play(path, amp, amp_lag, start, sample_end, loop, rate, trig, decay, interpolation)
+  engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig, decay, interpolation)
 end
 
 function Sample:get_name()
