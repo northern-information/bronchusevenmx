@@ -24,7 +24,7 @@ Engine_Ge47eb : CroneEngine {
 		SynthDef("playerGe47ebStereo",{ 
 				arg bufnum, amp=0, ampLag=0, t_trig=0,
 				sampleStart=0,sampleEnd=1,loop=0,
-				rate=1;
+				rate=1,decay=999;
 
 				var snd;
 				var frames = BufFrames.kr(bufnum);
@@ -33,6 +33,8 @@ Engine_Ge47eb : CroneEngine {
 				amp = Lag.kr(amp,ampLag);
 				// use envelope for doing fade in
 				amp = amp * EnvGen.ar(Env([0,1],[ampLag]));
+        // use percussive envelope for doing percussive things
+        amp = amp * EnvGen.kr(Env.perc(0, decay), t_trig);
 				
 				// playbuf
 				snd = PlayBuf.ar(
@@ -57,7 +59,7 @@ Engine_Ge47eb : CroneEngine {
 		SynthDef("playerGe47ebMono",{ 
 				arg bufnum, amp=0, ampLag=0, t_trig=0,
 				sampleStart=0,sampleEnd=1,loop=0,
-				rate=1;
+				rate=1, decay=999;
 
 				var snd;
 				var frames = BufFrames.kr(bufnum);
@@ -66,6 +68,8 @@ Engine_Ge47eb : CroneEngine {
 				amp = Lag.kr(amp,ampLag);
 				// use envelope for doing fade in
 				amp = amp * EnvGen.ar(Env([0,1],[ampLag]));
+        // use percussive envelope for doing percussive things
+        amp = amp * EnvGen.kr(Env.perc(0, decay), t_trig);
 				
 				// playbuf
 				snd = PlayBuf.ar(
@@ -90,9 +94,10 @@ Engine_Ge47eb : CroneEngine {
 		}).add;	
 
 
-		this.addCommand("play","sfffffff", { arg msg;
+		this.addCommand("play","sffffffff", { arg msg;
 			var filename=msg[1];
 			var synName="playerGe47ebMono";
+      ("decay is " + msg[9]).postln;
 			if (bufGe47eb.at(filename)==nil,{
 				// load buffer
 				Buffer.read(context.server,filename,action:{
@@ -110,6 +115,7 @@ Engine_Ge47eb : CroneEngine {
 						\loop,msg[6],
 						\rate,msg[7],
 						\t_trig,msg[8],
+						\decay,msg[9],
 					],target:context.server).onFree({
 						// ("freed "++filename).postln;
 					}));
@@ -130,6 +136,7 @@ Engine_Ge47eb : CroneEngine {
 						\loop,msg[6],
 						\rate,msg[7],
 						\t_trig,msg[8],
+						\decay,msg[9],
 					);
 				},{
 					synGe47eb.put(filename,Synth(synName,[

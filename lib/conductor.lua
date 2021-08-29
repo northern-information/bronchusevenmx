@@ -17,10 +17,11 @@ function conductor.init()
   -- just-intonation (perfect) fifth sequence
   conductor.rate = table_stream{1/4, 3/8, 1/2, 3/4, 1, 3/2, 2}
   conductor.offset_stream = series_stream(0, 0.001)
-  conductor.amp_stream = loop_stream(series_stream(0.2, 0.05), 16)
+  conductor.amp_stream = loop_stream(series_stream(0.3, 0.05), 13)
   conductor.clockdiv_div_stream = loop_stream(series_stream(1, 1), 7)
   conductor.clockdiv_stream = loop_stream(once_stream(), 
     conductor.clockdiv_div_stream.next())
+  conductor.decay_stream = loop_stream(series_stream(0.05, 0.05), 11)
 end
 
 function conductor:act()
@@ -52,7 +53,8 @@ function conductor:act()
     self.sampler[now_playing]:scrub(
       self.rate.last(), 
       self.offset_stream.next(), 
-      self.amp_stream.next())
+      self.amp_stream.next(),
+      self.decay_stream.next())
   end
 
   -- rerun the script

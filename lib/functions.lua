@@ -29,6 +29,8 @@ function fn.dirty_screen(bool)
   return screen_dirty
 end
 
+-- all this stream shit should probably go in its own module
+
 function make_stream(setup, debug)
   local get_next
   local stream = { value = nil }
