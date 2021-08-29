@@ -39,7 +39,7 @@ function Sample:loop()
 end
 
 
-function Sample:scrub(rate, sample_start, amp, decay, interpolation, sample_end, endLag, hpf)
+function Sample:scrub(rate, sample_start, amp, decay, interpolation, sample_end, endLag, hpf, delay_send)
   rate = rate or 1
   sample_start = sample_start or 0
   amp = amp or self:get_volume() * .01
@@ -48,13 +48,14 @@ function Sample:scrub(rate, sample_start, amp, decay, interpolation, sample_end,
   sample_end = sample_end or 1
   endLag = endLag or 0
   hpf = hpf or 1
-  print("endLag:"..endLag)
+  delay_send = delay_send or 0
+  --print("endLag:"..endLag)
 
   local path = self:get_path()
   local amp_lag = 0
   local loop = 0
   local trig = 1
-  engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig, decay, interpolation, endLag, hpf)
+  engine.play(path, amp, amp_lag, sample_start, sample_end, loop, rate, trig, decay, interpolation, endLag, hpf, delay_send)
 end
 
 function Sample:get_name()
