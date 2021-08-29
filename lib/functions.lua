@@ -29,28 +29,20 @@ function fn.dirty_screen(bool)
   return screen_dirty
 end
 
-function make_stream(setup)
+function make_stream(setup, debug)
   local get_next
-  local value = nil
+  local stream = { value = nil }
+  stream.set_value = 
+    function (new_value)
+      stream.value = new_value
+    end
 
-  print('making stream')
-
-  function reset () 
-    print('calling reset')
-    get_next = setup()
-    print('called reset')
-  end
-
-  function set_value (new_value)
-    value = new_value
-  end
+  function reset () get_next = setup() end
 
   reset()
 
-  local stream = {}
-
-  stream["last"] = function () return value end
-  stream["advance"] = function () get_next(set_value) end
+  stream["last"] = function () return stream.value end
+  stream["advance"] = function () get_next(stream.set_value) end
   stream["next"] = 
     function () 
       stream.advance()
@@ -85,11 +77,50 @@ function table_stream(t)
   return make_stream(function ()
     local index = 1
     return function (cb)
-      print("table_stream -> "..t[index])
       cb(t[index])
       index = index % #t + 1
     end
   end)
+end
+
+function once_stream()
+  return make_stream(function ()
+    local value = true
+    return function (cb)
+      cb(value)
+      value = false
+    end
+  end)
+end
+
+function loop_stream(stream, max_items)
+  local items = 0
+  local value = nil
+  local looped_stream = { }
+  looped_stream["reset"] = 
+    function () 
+      items = 0
+      stream.reset()
+    end
+  looped_stream["next"] = 
+    function ()
+      value = stream.next()
+      items = items + 1
+      if items >= max_items then
+        looped_stream.reset()
+      end
+      return value
+    end
+  looped_stream["last"] = 
+    function ()
+      return value
+    end
+  looped_stream["set_length"] = 
+    function (new_length)
+      print("new length: "..new_length)
+      max_items = new_length
+    end
+  return looped_stream
 end
 
 function stream_to_table(stream, size)

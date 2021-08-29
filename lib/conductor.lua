@@ -1,7 +1,5 @@
 conductor = {}
 now_playing = nil
-ticks_per_beat = 24
-beats_per_measure = 16
 
 function conductor.init()
   conductor.arrow_of_time = 0
@@ -18,7 +16,11 @@ function conductor.init()
   conductor.test = Sequins{1, 2}
   -- just-intonation (perfect) fifth sequence
   conductor.rate = table_stream{1/4, 3/8, 1/2, 3/4, 1, 3/2, 2}
-  conductor.offset_stream = series_stream(0, 0.002)
+  conductor.offset_stream = series_stream(0, 0.001)
+  conductor.amp_stream = loop_stream(series_stream(0.2, 0.05), 16)
+  conductor.clockdiv_div_stream = loop_stream(series_stream(1, 1), 7)
+  conductor.clockdiv_stream = loop_stream(once_stream(), 
+    conductor.clockdiv_div_stream.next())
 end
 
 function conductor:act()
@@ -35,22 +37,22 @@ function conductor:act()
     now_playing = self.test()
     -- local name = 'uneven-structure-' .. now_playing .. '.wav'
     -- print("now_playing "..name)
-    local rate = self.rate.next()
-    print(rate)
     self.sampler[now_playing]:scrub(
-      rate, 
+      self.rate.next(), 
       self.offset_stream.next(),
-      1)
+      self.amp_stream.next())
   end
 
-  if a % 100 > 50 and a % 5 == 0 then
+  -- it'd be cool to "auto-bind" once stream to another for e.g. looping
+  if a % 100 > 50 and self.clockdiv_stream.next() then
+    self.clockdiv_stream.set_length(conductor.clockdiv_div_stream.next())
     -- local name = 'uneven-structure-' .. now_playing .. '.wav'
     -- function Sample:scrub(rate, start, amp)
     --self.sampler[now_playing]:scrub(1, self.offset_stream.next(), 1)
     self.sampler[now_playing]:scrub(
       self.rate.last(), 
       self.offset_stream.next(), 
-      1)
+      self.amp_stream.next())
   end
 
   -- rerun the script
