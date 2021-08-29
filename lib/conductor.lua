@@ -12,7 +12,7 @@ function conductor.init()
   end
   -- "score" data
   conductor.test = Sequins{1, 2}
-  --conductor.offset_stream = series_stream(0, 0.01)
+  conductor.offset_stream = series_stream(0, 0.01)
   
   -- conductor.start = Sequins{}
 end
@@ -38,7 +38,7 @@ function conductor:act()
     name = self.hash_map[name]
     -- function Sample:scrub(rate, start, amp)
     --self.sampler[name]:scrub(1, self.offset_stream.next(), 1)
-    --self.sampler[name]:scrub()
+    self.sampler[name]:scrub()
   end
 
   -- rerun the script
