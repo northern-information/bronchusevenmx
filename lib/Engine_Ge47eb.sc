@@ -16,16 +16,28 @@ Engine_Ge47eb : CroneEngine {
 
 	alloc {
 		// <Ge47eb> 
+    var delay, delayBus;
+
 		bufGe47eb=Dictionary.new(128);
 		synGe47eb=Dictionary.new(128);
 
 		context.server.sync;
 
+    delayBus = Bus.audio(context.server, 2);
+
+		context.server.sync;
+
+    delay = {|time=0.2, modDepth=0.005, modSpeed=0.5, decay=2|
+      var input = In.ar(delayBus);
+      time = SinOsc.kr(modSpeed, 0, modDepth, time);
+      Out.ar(0, CombN.ar(input, 5, time, decay))
+    }.play;
+
 		SynthDef("playerGe47ebStereo",{ 
 				arg bufnum, amp=0, ampLag=0, t_trig=0,
 				sampleStart=0,sampleLen=1,loop=0,
 				rate=1,decay=999,interpolation=2, endLag=1,
-        hpf=1;
+        hpf=1, delaySend=0;
 
 				var snd;
         var index;
@@ -62,7 +74,8 @@ Engine_Ge47eb : CroneEngine {
 				// if looping, free up synth if no output
 				DetectSilence.ar(snd,doneAction:2);
 
-				Out.ar(0,snd)
+				Out.ar(0,snd);
+				Out.ar(delayBus,snd * delaySend);
 		}).add;	
 
 		SynthDef("playerGe47ebMono",{ 
@@ -99,10 +112,17 @@ Engine_Ge47eb : CroneEngine {
 				// if looping, free up synth if no output
 				DetectSilence.ar(snd,doneAction:2);
 
-				Out.ar(0,snd)
+				Out.ar(0,snd);
 		}).add;	
 
-		this.addCommand("play","sffffffffiff", { arg msg;
+
+    //var delay = { |time=0.2, modDepth=0.01, modSpeed=0.5, decay=2|
+    this.addCommand("delay_time", "f", {|msg| delay.set(\time, msg[1]) });
+    this.addCommand("delay_mod_depth", "f", {|msg| delay.set(\modDepth, msg[1]) });
+    this.addCommand("delay_mod_speed", "f", {|msg| delay.set(\modSpeed, msg[1]) });
+    this.addCommand("delay_mod_decay", "f", {|msg| delay.set(\decay, msg[1]) });
+
+		this.addCommand("play","sffffffffifff", { arg msg;
 			var filename=msg[1];
 			var synName="playerGe47ebMono";
 			if (bufGe47eb.at(filename)==nil,{
@@ -129,6 +149,7 @@ Engine_Ge47eb : CroneEngine {
 						\interpolation,msg[10],
 						\endLag,msg[11],
 						\hpf,msg[12],
+						\delaySend,msg[13],
 					],target:context.server).onFree({
 						// ("freed "++filename).postln;
 					}));
@@ -154,6 +175,7 @@ Engine_Ge47eb : CroneEngine {
 						\interpolation,msg[10],
 						\endLag,msg[11],
 						\hpf,msg[12],
+						\delaySend,msg[13],
 					);
 				},{
 					synGe47eb.put(filename,Synth(synName,[
@@ -169,6 +191,7 @@ Engine_Ge47eb : CroneEngine {
 						\interpolation,msg[10],
 						\endLag,msg[11],
 						\hpf,msg[12],
+						\delaySend,msg[13],
 					],target:context.server).onFree({
 						// ("freed "++filename).postln;
 					}));
