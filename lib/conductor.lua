@@ -40,6 +40,8 @@ function conductor.init()
 
   conductor.changerate_stream = loop_stream(once_stream(), 70)
 
+  -- delay
+  conductor.bar = loop_stream(once_stream(), 96)
 end
 
 function conductor:act()
@@ -49,6 +51,13 @@ function conductor:act()
   -- hardcode event
   if a == 23 then 
     -- print("hardcode event")
+  end
+
+  if self.bar.next() then
+    engine.delay_time(math.random())
+    engine.delay_mod_decay(math.random() * 20)
+    engine.delay_mod_depth(math.random() / 100)
+    engine.delay_mod_speed(math.random())
   end
 
   if self.sixteenth.next() then
@@ -64,14 +73,14 @@ function conductor:act()
       local offset = self.drum_bar_offset.next()
       local hpf = 20
       local sample_len = self.sample_len.next()
-      print("hpf:"..self.hpf_steps.next())
+      --print("hpf:"..self.hpf_steps.next())
       sampler:get_by_name("deep-state-music.wav"):scrub(
         rate, offset, amp, decay, interp, sample_len, 0, hpf)
     elseif self.drum_step.last() == 4 then
       local offset = self.drum_bar_offset.next() + self.drum_8_offset.next()
       local hpf = self.hpf_steps.last()
       sampler:get_by_name("deep-state-music.wav"):scrub(
-        rate, offset, amp, decay, interp, sample_len, 2, hpf)
+        rate, offset, amp, decay, interp, sample_len, 2, hpf, 0)
     end
   end
 
@@ -84,10 +93,11 @@ function conductor:act()
     sampler:get_by_name(name):scrub(
       self.rate.next(), 
       self.offset_stream.next(),
-      self.amp_stream.next() * 0.3,
+      self.amp_stream.next() * 0.4,
       999,
       2, 
       0.5,
+      20,
       0)
   end
 
@@ -105,11 +115,14 @@ function conductor:act()
     sampler:get_by_name(name):scrub(
       self.rate.last(), 
       self.offset_stream.next(), 
-      self.amp_stream.next() * 0.4,
+      self.amp_stream.next() * 0.5,
       self.decay_stream.next(),
       self.interp(),
       self.len_stream.next(),
-      0.5)
+      0.5, 
+      20,
+      1)
+    --sampler:get_by_name("deep-state-music.wav"):scrub(rate, offset, amp, decay, interp, sample_len, end_lag, hpf)
   end
 
   -- rerun the script
