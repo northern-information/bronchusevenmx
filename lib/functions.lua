@@ -129,7 +129,6 @@ function loop_stream(stream, max_items, inc)
     end
   looped_stream["set_length"] = 
     function (new_length)
-      --print("new length: "..new_length)
       max_items = new_length
     end
   looped_stream["set_inc"] = 

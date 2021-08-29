@@ -125,7 +125,6 @@ Engine_Ge47eb : CroneEngine {
 		this.addCommand("play","sffffffffi", { arg msg;
 			var filename=msg[1];
 			var synName="playerGe47ebMono";
-      //("decay is " + msg[9]).postln;
 			if (bufGe47eb.at(filename)==nil,{
 				// load buffer
 				Buffer.read(context.server,filename,action:{
